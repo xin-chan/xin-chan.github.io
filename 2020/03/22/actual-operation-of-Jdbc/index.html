@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="*﻿JDBC:*  ** 全拼是： JavaDataBasesConnectivity  说在前边的那些话-（准备工作）：由于java与sql是两个独立的个体，所以他们之间的连接需要借助第三方媒介，这个媒介就是dirver驱动。 首先我们需要创建lib目录引入dirver驱动，并为其配置环境变量。且代码开始需要首先编写：dirver驱动地址、数据库用户名、密码、URL地址。 具体实现步骤： 一、倒">
+<meta property="og:type" content="article">
+<meta property="og:title" content="actual operation of Jdbc">
+<meta property="og:url" content="https://xin-chan.github.io/2020/03/22/actual-operation-of-Jdbc/index.html">
+<meta property="og:site_name" content="xin-chan&#39;blog">
+<meta property="og:description" content="*﻿JDBC:*  ** 全拼是： JavaDataBasesConnectivity  说在前边的那些话-（准备工作）：由于java与sql是两个独立的个体，所以他们之间的连接需要借助第三方媒介，这个媒介就是dirver驱动。 首先我们需要创建lib目录引入dirver驱动，并为其配置环境变量。且代码开始需要首先编写：dirver驱动地址、数据库用户名、密码、URL地址。 具体实现步骤： 一、倒">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2019073111491944.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190731115044426.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190731115119646.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190731115221425.png">
+<meta property="article:published_time" content="2020-03-22T09:10:46.000Z">
+<meta property="article:modified_time" content="2020-03-22T09:50:51.334Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/2019073111491944.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xin-chan.github.io/2020/03/22/actual-operation-of-Jdbc/"/>
+
+
+
+
+
+  <title>actual operation of Jdbc | xin-chan'blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ce2c766d697cc793305253ea3142694c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xin-chan'blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            Commonweal 404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xin-chan.github.io/2020/03/22/actual-operation-of-Jdbc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xin-chan'blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">actual operation of Jdbc</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-22T17:10:46+08:00">
+                2020-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>*﻿JDBC:*</strong> </p>
+<p>** 全拼是： <strong>J</strong>ava<strong>D</strong>ata<strong>B</strong>ases<strong>C</strong>onnectivity </p>
+<h4 id="说在前边的那些话-（准备工作）："><a href="#说在前边的那些话-（准备工作）：" class="headerlink" title="说在前边的那些话-（准备工作）："></a><strong>说在前边的那些话-（准备工作）：</strong></h4><p>由于java与sql是两个独立的个体，所以他们之间的连接需要借助第三方媒介，这个媒介就是dirver驱动。</p>
+<p>首先我们需要创建lib目录引入dirver驱动，并为其配置环境变量。<br>且代码开始需要首先编写：<br>dirver驱动地址、数据库用户名、密码、URL地址。</p>
+<h4 id="具体实现步骤："><a href="#具体实现步骤：" class="headerlink" title="具体实现步骤："></a><strong>具体实现步骤：</strong></h4><ul>
+<li>一、<strong>倒包：</strong><br>将我们实现编辑好的jar包导入lib下。</li>
+</ul>
+<p>1、util工具包：jdbc.properties;PropertiesReader.java;JdbcUtils.java<br>2、dao包：GeneralDao.java;ORMapping.java;SqlParam.java</p>
+<p><img src="https://img-blog.csdnimg.cn/2019073111491944.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>二、编辑jdbc.propreties，注意数据库名称更换：</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20190731115044426.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>三、<strong>建包：</strong><br>1、sql包：.sql文件+运行<br>2、model包：映射类.class。<br>3、bo包：需要的查询方法，引用dao层。</li>
+</ul>
+<p><strong><em>名词解释：</em></strong></p>
+<p>*DAO：DataAccessObject(数据访问对象)：负责对数据的增删改查操作。<br>*B   O：BusinessObject(业务对象):               负责控制层。</p>
+<p><img src="https://img-blog.csdnimg.cn/20190731115119646.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>四、Bo层操作<br>1、静态引入dao层所有文件。<br>2、①编写sql语句，<pre><code>②编写方法调用合适的dao层的方法，</code></pre></li>
+</ul>
+<p><strong><em>命名习惯：</em></strong></p>
+<p>增删改：我们习惯命名以do开头，<br>查询：我们习惯以query开头。</p>
+<p>3、在方法书写中及时进行代码整理。</p>
+<p><img src="https://img-blog.csdnimg.cn/20190731115221425.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>五、创建test包</li>
+</ul>
+<p>BO层代码–范例：</p>
+<figure class="highlight java"><figcaption><span>package org.forten.jdbc.bo;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.forten.jdbc.dao.GeneralDao.DAO;</span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.forten.jdbc.dao.SqlParam.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.sql.ResultSet;</span><br><span class="line"><span class="keyword">import</span> java.sql.SQLException;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.forten.jdbc.model.Course;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> CourseBo &#123;</span><br><span class="line">	Course_Bo;</span><br><span class="line"><span class="comment">// 增                                                                        public int doAdd(Course course) &#123;</span></span><br><span class="line">String sql = <span class="string">"INSERT INTO course "</span> + <span class="string">"(course_name,address,course_time,course_duration,amount_stu,teacher_id) "</span>+ <span class="string">"values "</span> + <span class="string">"(?,?,?,?,?,?)"</span>;</span><br><span class="line">        <span class="keyword">return</span> DAO.update(sql, </span><br><span class="line">ofString(<span class="number">1</span>, course.getCourseName()), </span><br><span class="line">ofString(<span class="number">2</span>, course.getAddress()),</span><br><span class="line">ofLocalDate(<span class="number">3</span>, course.getCourseTime()), ofInt(<span class="number">4</span>, course.getCourseDur()), </span><br><span class="line">ofInt(<span class="number">5</span>, course.getAmount()),</span><br><span class="line">ofInt(<span class="number">6</span>, course.getTeacherId()));</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 删</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">doDelete</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> DAO.update(<span class="string">"DELETE FROM course WHERE ID=?"</span>, ofInt(<span class="number">1</span>, id));</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 改</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">doUpdate</span><span class="params">(Course course)</span> </span>&#123;</span><br><span class="line">		String sql = <span class="string">"UPDATE course_name=?,address=?,course_time=?,course_duration=?,amount_stu=?,teacher_id=? "</span></span><br><span class="line">				+ <span class="string">"FROM "</span> + <span class="string">"course WHERE id=?"</span>;</span><br><span class="line">		<span class="keyword">return</span> DAO.update(sql, ofString(<span class="number">1</span>, course.getCourseName()), ofString(<span class="number">2</span>, course.getAddress()),</span><br><span class="line">				ofLocalDate(<span class="number">3</span>, course.getCourseTime()), ofInt(<span class="number">4</span>, course.getCourseDur()), ofInt(<span class="number">5</span>, course.getAmount()),</span><br><span class="line">				ofInt(<span class="number">6</span>, course.getTeacherId()), ofInt(<span class="number">7</span>, course.getId()));</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 查全</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> List&lt;Course&gt; <span class="title">queryfindAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		String sql = <span class="string">"SELECT course_name,address,course_time,course_duration,amount_stu,teacher_id FROM course "</span>;</span><br><span class="line">		<span class="keyword">return</span> DAO.findList(sql, <span class="keyword">this</span>::MapTo);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 查一</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Course <span class="title">queryById</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">		String sql = <span class="string">"SELECT course_name,address,course_time,course_duration,amount_stu,teacher_id FROM course WHERRE ID=?"</span>;</span><br><span class="line">		<span class="keyword">return</span> DAO.findBean(sql, <span class="keyword">this</span>::MapTo, ofInt(<span class="number">1</span>, id));</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//查一函数</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">queryByCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		String sql = <span class="string">"SELECT count(id) FROM course"</span>;</span><br><span class="line">		<span class="keyword">return</span> DAO.findValue(sql, <span class="keyword">long</span><span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> Course <span class="title">MapTo</span><span class="params">(ResultSet rs)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">		Course c = <span class="keyword">new</span> Course();</span><br><span class="line">		c.setCourseName(rs.getString(<span class="number">1</span>));</span><br><span class="line">		c.setAddress(rs.getString(<span class="number">2</span>));</span><br><span class="line">		c.setCourseTime(rs.getDate(<span class="number">3</span>).toLocalDate());</span><br><span class="line">		c.setCourseDur(rs.getInt(<span class="number">4</span>));</span><br><span class="line">		c.setAmount(rs.getInt(<span class="number">5</span>));</span><br><span class="line">		c.setTeacherId(rs.getInt(<span class="number">6</span>));</span><br><span class="line">		<span class="keyword">return</span> c;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/17/Talk-about-the-new-features-of-jdk14/" rel="next" title="Talk about the new features of jdk14">
+                <i class="fa fa-chevron-left"></i> Talk about the new features of jdk14
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+     
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xin-chan" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zin_chan@163.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#说在前边的那些话-（准备工作）："><span class="nav-number">1.</span> <span class="nav-text">说在前边的那些话-（准备工作）：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#具体实现步骤："><span class="nav-number">2.</span> <span class="nav-text">具体实现步骤：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
